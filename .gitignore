@@ -1,0 +1,9 @@
+.idea
+.gradle
+target
+out
+*.iml
+generatedSrc/
+/.kotlintest/
+/guiceDependenciesGraph.dot
+build
