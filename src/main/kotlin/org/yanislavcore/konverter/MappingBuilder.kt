@@ -4,15 +4,21 @@ import kotlin.reflect.KClass
 import kotlin.reflect.KProperty1
 import kotlin.reflect.full.primaryConstructor
 
-class MappingBuilder<RESULT : Any> internal constructor(private val mappedClass: KClass<RESULT>) {
+class MappingBuilder<RESULT : Any> constructor(private val mappedClass: KClass<RESULT>) {
     private val propertyToBuilder: MutableMap<KProperty1<RESULT, *>, ConvertingStage<*>> = LinkedHashMap()
-    infix fun <T : Any> KProperty1<RESULT, T>.bindWith(builder: ConvertingStage<T>) {
+    infix fun <T : Any> KProperty1<RESULT, T>.with(builder: ConvertingStage<T>) {
         if (propertyToBuilder.put(this, builder) != null) {
             error("Already mapped. Failed to create builder")
         }
     }
 
-    infix fun <T> KProperty1<RESULT, T?>.bindWithNullable(builder: ConvertingStage<T?>) {
+    infix fun <T : Any> KProperty1<RESULT, T?>.withNonNull(builder: ConvertingStage<T>) {
+        if (propertyToBuilder.put(this, builder) != null) {
+            error("Already mapped. Failed to create builder")
+        }
+    }
+
+    infix fun <T : Any> KProperty1<RESULT, T?>.withNullable(builder: ConvertingStage<T?>) {
         if (propertyToBuilder.put(this, builder) != null) {
             error("Already mapped. Failed to create builder")
         }
@@ -27,7 +33,8 @@ class MappingBuilder<RESULT : Any> internal constructor(private val mappedClass:
     fun MappingContext.invalid(msg: String, cause: Exception? = null): Nothing =
         throw StageValidationException(msg, cause)
 
-    internal fun build(failFast: Boolean = false): RESULT {
+    @Throws(ValidationException::class, ConverterException::class)
+    fun build(failFast: Boolean = false): RESULT {
         val calculationResult = propertyToBuilder.map { (k, v) ->
             val result = v.calculate()
 

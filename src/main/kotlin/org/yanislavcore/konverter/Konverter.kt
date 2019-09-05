@@ -3,7 +3,8 @@ package org.yanislavcore.konverter
 import kotlin.reflect.KClass
 
 object Konverter {
-    fun <T : Any> converTo(
+    @Throws(ValidationException::class, ConverterException::class)
+    inline fun <T : Any> convertTo(
         klass: KClass<T>,
         failFast: Boolean = false,
         builder: MappingBuilder<T>.() -> Unit
@@ -11,4 +12,8 @@ object Konverter {
         MappingBuilder(klass)
             .apply(builder)
             .build(failFast)
+
+    @Throws(ValidationException::class, ConverterException::class)
+    inline fun <reified T : Any> convert(failFast: Boolean = false, builder: MappingBuilder<T>.() -> Unit): T =
+        convertTo(T::class, failFast, builder)
 }
