@@ -6,19 +6,13 @@ import kotlin.reflect.full.primaryConstructor
 
 class MappingBuilder<RESULT : Any> constructor(private val mappedClass: KClass<RESULT>) {
     private val propertyToBuilder: MutableMap<KProperty1<RESULT, *>, ConvertingStage<*>> = LinkedHashMap()
-    infix fun <T : Any> KProperty1<RESULT, T>.with(builder: ConvertingStage<T>) {
+    infix fun <T : Any> KProperty1<RESULT, T?>.with(builder: ConvertingStage<T>) {
         if (propertyToBuilder.put(this, builder) != null) {
             error("Already mapped. Failed to create builder")
         }
     }
 
-    infix fun <T : Any> KProperty1<RESULT, T?>.withNonNull(builder: ConvertingStage<T>) {
-        if (propertyToBuilder.put(this, builder) != null) {
-            error("Already mapped. Failed to create builder")
-        }
-    }
-
-    infix fun <T : Any> KProperty1<RESULT, T?>.withNullable(builder: ConvertingStage<T?>) {
+    infix fun <T : Any?> KProperty1<RESULT, T?>.withNullable(builder: ConvertingStage<T>) {
         if (propertyToBuilder.put(this, builder) != null) {
             error("Already mapped. Failed to create builder")
         }

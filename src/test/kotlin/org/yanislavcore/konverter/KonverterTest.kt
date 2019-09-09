@@ -14,7 +14,7 @@ class KonverterTest : StringSpec({
                 TestData::one with lazyMapping { f }
                 TestData::second with lazyMapping { s }
                 TestData::third with lazyMapping { t }
-                TestData::forth withNonNull lazyMapping { fo }
+                TestData::forth withNullable lazyMapping { fo }
             }
 
             result.one shouldBe f
@@ -47,7 +47,7 @@ class KonverterTest : StringSpec({
                     TestData::one with lazyMapping<String> { invalid("test") }
                     TestData::second with lazyMapping<String> { invalid("test") }
                     TestData::third with lazyMapping<Int> { invalid("test") }
-                    TestData::forth withNonNull lazyMapping {
+                    TestData::forth with lazyMapping {
                         calculated++
                         o
                     }
@@ -80,7 +80,7 @@ class KonverterTest : StringSpec({
                         calculated++
                         invalid("test")
                     }
-                    TestData::forth withNonNull lazyMapping {
+                    TestData::forth with lazyMapping {
                         calculated++
                         o
                     }
@@ -123,7 +123,7 @@ class KonverterTest : StringSpec({
                 TestData::one with first.mapRight { it.toString() }
                 TestData::second with second
                 TestData::third with third
-                TestData::forth withNonNull forth
+                TestData::forth with forth
             }
 
             listOf(firstCalculated, secondCalculated, thirdCalculated).shouldMatchAllWith { it == 1 }
