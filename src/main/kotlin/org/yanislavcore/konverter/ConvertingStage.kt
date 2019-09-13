@@ -1,13 +1,31 @@
 package org.yanislavcore.konverter
 
+
+/**
+ * Interface for field builders
+ */
 interface ConvertingStage<R> {
+    /**
+     * Calculates and returns result (exceptional of failed) of building.
+     * @return [ConvertingResult] result of calculation (successful of failed)
+     */
     fun calculate(): ConvertingResult<R>
 
+    /**
+     * Creates new builder, that transforms result (exceptional of failed) of current builder when calculated.
+     * @param mapping - transformation of builder result (exceptional of failed)
+     * @return new builder
+     */
     fun <N> map(mapping: (ConvertingResult<R>) -> N): ConvertingStage<N> =
         LazyConvertingStage {
             mapping(calculate())
         }
 
+    /**
+     * Creates new builder, that transforms ONLY exceptional result of current builder when calculated.
+     * @param mapping - transformation of builder result (only exceptional)
+     * @return new builder
+     */
     fun mapLeft(mapping: (Throwable) -> R): ConvertingStage<R> =
         LazyConvertingStage {
             val result = calculate()
@@ -18,9 +36,19 @@ interface ConvertingStage<R> {
             }
         }
 
+    /**
+     * Alias for [ConvertingStage.mapLeft]
+     * @param mapping - see [ConvertingStage.mapLeft]
+     * @return see [ConvertingStage.mapLeft]
+     */
     fun recover(mapping: (Throwable) -> R): ConvertingStage<R> =
         mapLeft(mapping)
 
+    /**
+     * Creates new builder, that transforms ONLY successful result of current builder when calculated.
+     * @param mapping - transformation of builder result (only successful)
+     * @return new builder
+     */
     fun <N> mapRight(mapping: (R) -> N): ConvertingStage<N> =
         LazyConvertingStage {
             val result = calculate()
@@ -32,6 +60,13 @@ interface ConvertingStage<R> {
             }
         }
 
+
+    /**
+     * Create new builder, that combines successful results from two builders: current and [second]
+     * @param second - second builder to combine with
+     * @param combining - function that combines two result to new result
+     * @return new builder
+     */
     fun <S, N> combine(second: ConvertingStage<S>, combining: (R, S) -> N): ConvertingStage<N> =
         LazyConvertingStage {
             val fr = calculate()
@@ -46,6 +81,9 @@ interface ConvertingStage<R> {
             combining(fr.success(), sr.success())
         }
 
+    /**
+     * Same as [ConvertingStage.combine] but for tree values.
+     */
     fun <S, T, N> combine(
         second: ConvertingStage<S>,
         third: ConvertingStage<T>,
@@ -68,6 +106,9 @@ interface ConvertingStage<R> {
             combining(fr.success(), sr.success(), tr.success())
         }
 
+    /**
+     * Same as [ConvertingStage.combine] but for four values.
+     */
     fun <S, T, F, N> combine(
         second: ConvertingStage<S>,
         third: ConvertingStage<T>,

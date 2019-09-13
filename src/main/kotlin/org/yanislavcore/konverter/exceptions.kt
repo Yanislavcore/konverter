@@ -1,14 +1,10 @@
 package org.yanislavcore.konverter
 
-class StageValidationException(
-    message: String,
-    cause: Throwable?
-) : RuntimeException(message, cause)
-
 class ValidationException(
-    val reasons: List<StageValidationException>,
-    message: String = ""
-) : RuntimeException(message)
+    val reasons: List<ValidationException>? = null,
+    message: String = "",
+    cause: Throwable? = null
+) : RuntimeException(message, cause)
 
 class ConverterException(
     val reasons: List<Throwable>,

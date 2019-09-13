@@ -1,6 +1,7 @@
 package org.yanislavcore.konverter
 
 import io.kotlintest.properties.assertAll
+import io.kotlintest.shouldNotBe
 import io.kotlintest.shouldThrowExactly
 import io.kotlintest.specs.StringSpec
 import org.amshove.kluent.shouldBe
@@ -55,8 +56,8 @@ class KonverterTest : StringSpec({
             }
 
             calculated shouldEqual 1
-            result.reasons.size shouldEqual 3
-            result.reasons.shouldMatchAllWith {
+            result.reasons?.size shouldEqual 3
+            result.reasons?.shouldMatchAllWith {
                 it.message == "test"
             }
         }
@@ -88,10 +89,9 @@ class KonverterTest : StringSpec({
             }
 
             calculated shouldEqual 1
-            result.reasons.size shouldEqual 1
-            result.reasons.shouldMatchAllWith {
-                it.message == firstInvalidMsg
-            }
+            result.reasons shouldBe null
+            result.message shouldNotBe null
+            result.message!!.endsWith(firstInvalidMsg)
         }
     }
 
