@@ -63,6 +63,12 @@ Maven
 ## Usage
 
 ```kotlin
+import org.yanislavcore.konverter.Konverter
+import org.yanislavcore.konverter.ValidationException
+import java.math.BigDecimal
+import java.util.*
+
+
 data class BarData(val first: String, val second: UUID)
 data class Foo(
     val bar1: String,
@@ -95,26 +101,28 @@ fun build(input: Map<String, String>): Foo = Konverter.convert {
     Foo::bar5 withNullable just(null as BarData?)
 }
 
-val input = mapOf(
-    "bar1" to "42",
-    "bar3" to "27.123",
-    "bar4" to "barfoo"
-)
+fun main() {
+    val input = mapOf(
+        "bar1" to "42",
+        "bar3" to "27.123",
+        "bar4" to "barfoo"
+    )
 
-val result: Foo = build(input)
-assert(42 == result.bar2)
-assert(BigDecimal("27.123") == result.bar3)
+    val result: Foo = build(input)
+    assert(42 == result.bar2)
+    assert(BigDecimal("27.123") == result.bar3)
 
-val invalidInput = input.minus("bar1")
-val failedResult: ValidationException? = try {
-    build(invalidInput)
-    null
-} catch (e: ValidationException) {
-    e
+    val invalidInput = input.minus("bar1")
+    val failedResult: ValidationException? = try {
+        build(invalidInput)
+        null
+    } catch (e: ValidationException) {
+        e
+    }
+
+    assert(failedResult != null)
+    assert(failedResult!!.reasons!!.first().message == "'bar1' should be not null")
 }
-
-assert(failedResult != null)
-assert(failedResult!!.reasons!!.first().message == "'bar1' should be not null")
 ``` 
 
 ## Building
