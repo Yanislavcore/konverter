@@ -1,5 +1,7 @@
 # Konverter
 
+[ ![Download](https://api.bintray.com/packages/yanislavcore/konverter/konverter/images/download.svg) ](https://bintray.com/yanislavcore/konverter/konverter/_latestVersion)
+
 Lightweight Kotlin library for painless and type-safe building and validation of immutable objects.
 
 ## Features
@@ -10,6 +12,53 @@ Lightweight Kotlin library for painless and type-safe building and validation of
 * Validation during building
 * Validation and building errors aggregation
 * Lightweight and minimal-dependency (only `kotlin-stdlin` and `kotlin-reflect`)
+
+## Setup
+
+[Full setup info](https://bintray.com/yanislavcore/konverter/konverter)
+
+### Add to repositories
+
+Gradle 
+
+```groovy
+repositories {
+    maven {
+        url  "https://dl.bintray.com/yanislavcore/konverter" 
+    }
+}
+```
+
+Maven
+
+```xml
+<repositories>
+    <repository>
+        <snapshots>
+            <enabled>false</enabled>
+        </snapshots>
+        <id>bintray-yanislavcore-konverter</id>
+        <name>bintray</name>
+        <url>https://dl.bintray.com/yanislavcore/konverter</url>
+    </repository>
+</repositories>
+```
+
+### Add dependency
+
+Gradle
+```
+compile 'org.yanislavcore:konverter:0.1.0'
+```
+
+Maven
+```xml
+<dependency>
+  <groupId>org.yanislavcore</groupId>
+  <artifactId>konverter</artifactId>
+  <version>0.1.0</version>
+</dependency>
+```
 
 ## Usage
 
