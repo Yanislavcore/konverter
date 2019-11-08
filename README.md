@@ -11,7 +11,7 @@ Lightweight Kotlin library for painless and type-safe building and validation of
 * Lazy calculations
 * Validation during building
 * Validation and building errors aggregation
-* Lightweight and minimal-dependency (only `kotlin-stdlin` and `kotlin-reflect`)
+* Lightweight and minimal-dependency (only `kotlin-stdlib` and `kotlin-reflect`)
 
 ## Setup
 
