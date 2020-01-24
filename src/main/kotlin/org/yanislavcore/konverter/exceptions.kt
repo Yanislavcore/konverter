@@ -1,7 +1,7 @@
 package org.yanislavcore.konverter
 
-class ValidationException(
-    val reasons: List<ValidationException>? = null,
+class ConverterValidationException(
+    val reasons: List<ConverterValidationException>? = null,
     message: String = "",
     cause: Throwable? = null
 ) : RuntimeException(message, cause)
