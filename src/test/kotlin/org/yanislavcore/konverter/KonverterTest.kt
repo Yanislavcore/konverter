@@ -43,7 +43,7 @@ class KonverterTest : StringSpec({
     "Should calculate all fields by default and throw Invalid exception with all invalid reasons" {
         assertAll { o: String ->
             var calculated = 0
-            val result = shouldThrowExactly<ValidationException> {
+            val result = shouldThrowExactly<ConverterValidationException> {
                 Konverter.convertTo(TestData::class) {
                     TestData::one with lazyMapping<String> { invalid("test") }
                     TestData::second with lazyMapping<String> { invalid("test") }
@@ -67,7 +67,7 @@ class KonverterTest : StringSpec({
         assertAll { o: String ->
             val firstInvalidMsg = "FIRST_MSG"
             var calculated = 0
-            val result = shouldThrowExactly<ValidationException> {
+            val result = shouldThrowExactly<ConverterValidationException> {
                 Konverter.convertTo(TestData::class, true) {
                     TestData::one with lazyMapping<String> {
                         calculated++

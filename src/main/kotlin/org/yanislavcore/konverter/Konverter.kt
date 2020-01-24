@@ -1,9 +1,11 @@
 package org.yanislavcore.konverter
 
+import org.yanislavcore.konverter.validation.Validator
+import org.yanislavcore.konverter.validation.ValidatorBuilder
 import kotlin.reflect.KClass
 
 /**
- * Class suitable for performing builds.
+ * Performs conversions and creates validators.
  */
 object Konverter {
     /**
@@ -12,12 +14,12 @@ object Konverter {
      * @param failFast - if false Konverter will aggregate all exception and validation errors,
      * otherwise will throw exception after first fail
      * @param builder - builder of instance
-     * @throws ValidationException in case of any validation errors during building
+     * @throws ConverterValidationException in case of any validation errors during building
      * @throws ConverterException in case of any non-validation errors during building
      * @throws IllegalStateException in case of any builder creation errors
      * @return built instance of specified class
      */
-    @Throws(ValidationException::class, ConverterException::class, IllegalStateException::class)
+    @Throws(ConverterValidationException::class, ConverterException::class, IllegalStateException::class)
     inline fun <T : Any> convertTo(
         klass: KClass<T>,
         failFast: Boolean = false,
@@ -33,12 +35,12 @@ object Konverter {
      * @param failFast - if false Konverter will aggregate all exception and validation errors,
      * otherwise will throw exception after first fail
      * @param builder - builder of instance
-     * @throws ValidationException in case of any validation errors during building
+     * @throws ConverterValidationException in case of any validation errors during building
      * @throws ConverterException in case of any non-validation errors during building
      * @throws IllegalStateException in case of any builder creation errors
      * @return built instance of specified class
      */
-    @Throws(ValidationException::class, ConverterException::class, IllegalStateException::class)
+    @Throws(ConverterValidationException::class, ConverterException::class, IllegalStateException::class)
     inline fun <reified T : Any> convert(failFast: Boolean = false, builder: MappingBuilder<T>.() -> Unit): T =
         convertTo(T::class, failFast, builder)
 
@@ -49,12 +51,12 @@ object Konverter {
      * @param failFast - if false Konverter will aggregate all exception and validation errors,
      * otherwise will throw exception after first fail
      * @param builder - builder of instance
-     * @throws ValidationException in case of any validation errors during building
+     * @throws ConverterValidationException in case of any validation errors during building
      * @throws ConverterException in case of any non-validation errors during building
      * @throws IllegalStateException in case of any builder creation errors
      * @return built instance of specified class
      */
-    @Throws(ValidationException::class, ConverterException::class)
+    @Throws(ConverterValidationException::class, ConverterException::class)
     inline fun <T : Any> lazyConvertTo(
         klass: KClass<T>,
         failFast: Boolean = false,
@@ -71,15 +73,22 @@ object Konverter {
      * @param failFast - if false Konverter will aggregate all exception and validation errors,
      * otherwise will throw exception after first fail
      * @param builder - builder of instance
-     * @throws ValidationException in case of any validation errors during building
+     * @throws ConverterValidationException in case of any validation errors during building
      * @throws ConverterException in case of any non-validation errors during building
      * @throws IllegalStateException in case of any builder creation errors
      * @return built instance of specified class
      */
-    @Throws(ValidationException::class, ConverterException::class)
+    @Throws(ConverterValidationException::class, ConverterException::class)
     inline fun <reified T : Any> lazyConvert(
         failFast: Boolean = false,
         crossinline builder: MappingBuilder<T>.() -> Unit
     ):
             ConvertingStage<T> = lazyConvertTo(T::class, failFast, builder)
+
+
+    inline fun <reified T : Any> validator(builder: ValidatorBuilder<T>.() -> Unit): Validator<T> =
+        ValidatorBuilder(T::class)
+            .apply(builder)
+            .build()
+
 }
