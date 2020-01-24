@@ -12,7 +12,7 @@ data class ValidationResult(
     }
 }
 
-typealias ValidationStage<C, T> = (KProperty1<C, T?>, T?) -> ValidationResult
+typealias ValidationStage<C, T> = (KProperty1<C, T?>, T) -> ValidationResult
 
 internal data class ValidatorChildMeta<C>(
     val field: KProperty1<C, Any?>,

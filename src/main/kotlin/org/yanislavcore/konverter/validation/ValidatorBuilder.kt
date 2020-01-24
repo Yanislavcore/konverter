@@ -9,37 +9,80 @@ class ValidatorBuilder<C : Any> constructor(private val mappedClass: KClass<C>) 
     private val childrenValidators: MutableList<ValidatorChildMeta<C>> = ArrayList()
 
     @ContextDsl
-    infix fun <K : Any?> KProperty1<C, K?>.with(validator: ValidationStage<C, K>) {
+    infix fun <K : Any?> KProperty1<C, K>.should(validator: ValidationStage<C, K>) {
         val meta = ValidatorFieldMeta(this, validator as ValidationStage<C, Any?>)
         fieldValidators.add(meta)
     }
 
     @ContextDsl
-    inline fun <K : Any> KProperty1<C, K?>.withNotNull(crossinline validator: ValidationStage<C, K>) {
-        with { f, v ->
+    inline infix fun <K : Any> KProperty1<C, K?>.shouldBeNotNullAnd(crossinline validator: ValidationStage<C, K>) {
+        val field = this
+        should { f, v ->
             if (v == null) {
                 invalid("Field ${f.name} should be not null")
             } else {
-                validator(f, v)
+                validator(field, v)
             }
         }
     }
 
     @ContextDsl
-    fun <K : Any> KProperty1<C, K?>.subValidator(nullable: Boolean, validator: Validator<K>) {
+    fun <K : Any?> KProperty1<C, K?>.shouldBeNotNull() {
+        val validator: ValidationStage<C, K?> = { f, value ->
+            if (value == null) {
+                invalid("Field ${f.name} should be not null")
+            } else {
+                success()
+            }
+        }
+        val meta = ValidatorFieldMeta(this, validator as ValidationStage<C, Any?>)
+        fieldValidators.add(meta)
+    }
+
+    @ContextDsl
+    fun <K : Any?> KProperty1<C, K?>.shouldBeNull() {
+        val validator: ValidationStage<C, K?> = { f, value ->
+            if (value != null) {
+                invalid("Field ${f.name} should be not null")
+            } else {
+                success()
+            }
+        }
+        val meta = ValidatorFieldMeta(this, validator as ValidationStage<C, Any?>)
+        fieldValidators.add(meta)
+    }
+
+    @ContextDsl
+    infix fun <K : Any> KProperty1<C, K>.shouldBeValidWith(validator: Validator<K>) {
+        val meta = ValidatorChildMeta(this, validator as Validator<Any>, false)
+        childrenValidators.add(meta)
+    }
+
+    @ContextDsl
+    inline infix fun <reified K : Any> KProperty1<C, K>.shouldBeValidWith(
+        builder: ValidatorBuilder<K>.() -> Unit
+    ) {
+        ValidatorBuilder(K::class)
+            .apply(builder)
+            .build()
+            .let { shouldBeValidWith(it) }
+    }
+
+    @ContextDsl
+    fun <K : Any> KProperty1<C, K?>.shouldBeValidWith(nullable: Boolean, validator: Validator<K>) {
         val meta = ValidatorChildMeta(this, validator as Validator<Any>, nullable)
         childrenValidators.add(meta)
     }
 
     @ContextDsl
-    inline fun <reified K : Any> KProperty1<C, K?>.subValidator(
+    inline fun <reified K : Any> KProperty1<C, K?>.shouldBeValidWith(
         nullable: Boolean,
         builder: ValidatorBuilder<K>.() -> Unit
     ) {
         ValidatorBuilder(K::class)
             .apply(builder)
             .build()
-            .let { subValidator(nullable, it) }
+            .let { shouldBeValidWith(nullable, it) }
     }
 
 
@@ -48,14 +91,6 @@ class ValidatorBuilder<C : Any> constructor(private val mappedClass: KClass<C>) 
 
     @ContextDsl
     fun invalid(msg: String) = ValidationResult(message = msg)
-
-    inline fun <K : Any?> simpleValidation(crossinline block: (K?) -> Boolean): ValidationStage<C, K> = { field, d ->
-        if (!block(d)) {
-            ValidationResult(message = "Validation of the field '${field.name}' with value '$d' is failed")
-        } else {
-            ValidationResult.SUCCESS
-        }
-    }
 
     fun build(): Validator<C> = Validator(mappedClass, fieldValidators, childrenValidators)
 
