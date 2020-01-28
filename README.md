@@ -1,6 +1,6 @@
 # Konverter
 
-[ ![Download](https://api.bintray.com/packages/yanislavcore/konverter/konverter/images/download.svg) ](https://bintray.com/yanislavcore/konverter/konverter/_latestVersion)
+[ ![Download](https://api.bintray.com/packages/yanislavcore/konverter/konverter/images/download.svg?version=0.2.0-rc.1) ](https://bintray.com/yanislavcore/konverter/konverter/0.2.0-rc.1/link)
 
 Lightweight Kotlin library for painless and type-safe building and validation of immutable objects.
 
@@ -48,7 +48,7 @@ Maven
 
 Gradle
 ```
-compile 'org.yanislavcore:konverter:0.1.0'
+compile 'org.yanislavcore:konverter:0.2.0-rc.1'
 ```
 
 Maven
@@ -56,7 +56,7 @@ Maven
 <dependency>
   <groupId>org.yanislavcore</groupId>
   <artifactId>konverter</artifactId>
-  <version>0.1.0</version>
+  <version>0.2.0-rc.1</version>
 </dependency>
 ```
 
