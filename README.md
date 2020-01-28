@@ -1,6 +1,6 @@
 # Konverter
 
-[ ![Download](https://api.bintray.com/packages/yanislavcore/konverter/konverter/images/download.svg) ](https://bintray.com/yanislavcore/konverter/konverter/_latestVersion)
+[ ![Download](https://api.bintray.com/packages/yanislavcore/konverter/konverter/images/download.svg?version=0.1.0) ](https://bintray.com/yanislavcore/konverter/konverter/0.1.0/link)
 
 Lightweight Kotlin library for painless and type-safe building and validation of immutable objects.
 
