@@ -11,9 +11,9 @@ inline fun <C : Any, K : Any?> ValidatorBuilder<C>.match(
     msg: String?,
     crossinline block: (K) -> Boolean
 ): ValidationStage<C, K> =
-    { field, d ->
+    { d ->
         if (!block(d)) {
-            val finalMsg = msg ?: "Validation of the field '${field.name}' with value '$d' is failed"
+            val finalMsg = msg ?: "Validation of the field '${this.name}' with value '$d' is failed"
             invalid(finalMsg)
         } else {
             success()

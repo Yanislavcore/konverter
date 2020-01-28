@@ -1,35 +1,35 @@
 package org.yanislavcore.konverter
 
-import io.kotlintest.properties.Gen
-import io.kotlintest.properties.shrinking.Shrinker
-import io.kotlintest.properties.shrinking.StringShrinker
 import io.kotlintest.shouldBe
 import io.kotlintest.specs.StringSpec
 import org.amshove.kluent.shouldBeNull
+import org.amshove.kluent.shouldContainSame
 import org.amshove.kluent.shouldNotBeNull
+import org.yanislavcore.konverter.validation.InvalidFieldStatus
+import org.yanislavcore.konverter.validation.InvalidNestedObjectStatus
 import org.yanislavcore.konverter.validation.ValidatorBuilder
 import org.yanislavcore.konverter.validation.match
 import java.math.BigDecimal
 import java.math.BigInteger
-import kotlin.random.Random
+import kotlin.reflect.KProperty1
 
 class ValidationTest : StringSpec({
     val validatorBaseBuilder: ValidatorBuilder<TestData>.() -> Unit = {
-        TestData::first should { _, value ->
+        TestData::first should { value ->
             if (value.isNotBlank()) {
                 success()
             } else {
                 invalid("Should not be empty")
             }
         }
-        TestData::first shouldBeNotNullAnd { _, value ->
+        TestData::first shouldBeNotNullAnd { value ->
             if (value.isNotBlank()) {
                 success()
             } else {
                 invalid("Should not be empty")
             }
         }
-        TestData::second should { _, value: String? ->
+        TestData::second should { value: String? ->
             if (value == null) {
                 success()
             } else {
@@ -61,7 +61,7 @@ class ValidationTest : StringSpec({
             )
             val result = validator(d1)
             result.successful shouldBe true
-            result.subReasons.shouldBeNull()
+            result.causedBy.shouldBeNull()
         }
     }
 
@@ -74,6 +74,8 @@ class ValidationTest : StringSpec({
             }
         }
 
+        val expectedInvalidFields = listOf(TestData::second, TestData::fourth, SubTestData::firstSub)
+
         repeat(100) { i ->
             val d = TestData(
                 "abc123".repeat(i % 10 + 1),
@@ -82,22 +84,28 @@ class ValidationTest : StringSpec({
                 null,
                 SubTestData(BigDecimal.ZERO, BigInteger.ZERO)
             )
+
             val result = validator(d)
             result.successful shouldBe false
-            result.subReasons.shouldNotBeNull()
-            result.subReasons!!.size shouldBe 3
-            var subreasonsNum = 0
-            result.subReasons!!.forEach { r ->
-                subreasonsNum += r.subReasons?.size ?: 0
-                r.successful shouldBe false
-                r.subReasons?.any { it.successful }?.shouldBe(false)
+            result.causedBy.shouldNotBeNull()
+            result.causedBy!!.size shouldBe 3
+            val invalidFields = ArrayList<KProperty1<Any, Any?>>()
+            result.causedBy!!.forEach { r ->
+                when (r) {
+                    is InvalidFieldStatus -> {
+                        invalidFields.add(r.field)
+                    }
+                    is InvalidNestedObjectStatus -> {
+                        r.causedBy.forEach { invalidFields.add(it.field) }
+                    }
+                }
             }
-            subreasonsNum shouldBe 1
+            invalidFields shouldContainSame expectedInvalidFields
 
             val failfastResult = validator(d, failfast = true)
             failfastResult.successful shouldBe false
-            failfastResult.subReasons.shouldNotBeNull()
-            failfastResult.subReasons!!.size shouldBe 1
+            failfastResult.causedBy.shouldNotBeNull()
+            failfastResult.causedBy!!.size shouldBe 1
         }
     }
 
@@ -114,15 +122,4 @@ class ValidationTest : StringSpec({
         val firstSub: BigDecimal?,
         val secondSub: BigInteger
     )
-
-    companion object {
-        fun notEmptyStringGen(): Gen<String> = object : Gen<String> {
-            val literals =
-                listOf("\nabc\n123\n", "\u006c\u0069b/\u0062\u002f\u006d\u0069nd/m\u0061x\u002e\u0070h\u0070")
-
-            override fun constants(): Iterable<String> = literals
-            override fun random(): Sequence<String> = generateSequence { nextPrintableString(Random.nextInt(10, 100)) }
-            override fun shrinker(): Shrinker<String>? = StringShrinker
-        }
-    }
 }

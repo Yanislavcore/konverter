@@ -10,6 +10,7 @@ class ValidatorBuilder<C : Any> constructor(private val mappedClass: KClass<C>) 
 
     @ContextDsl
     infix fun <K : Any?> KProperty1<C, K>.should(validator: ValidationStage<C, K>) {
+        @Suppress("UNCHECKED_CAST")
         val meta = ValidatorFieldMeta(this, validator as ValidationStage<C, Any?>)
         fieldValidators.add(meta)
     }
@@ -17,9 +18,9 @@ class ValidatorBuilder<C : Any> constructor(private val mappedClass: KClass<C>) 
     @ContextDsl
     inline infix fun <K : Any> KProperty1<C, K?>.shouldBeNotNullAnd(crossinline validator: ValidationStage<C, K>) {
         val field = this
-        should { f, v ->
+        should { v ->
             if (v == null) {
-                invalid("Field ${f.name} should be not null")
+                invalid("Field ${this.name} should be not null")
             } else {
                 validator(field, v)
             }
@@ -28,32 +29,35 @@ class ValidatorBuilder<C : Any> constructor(private val mappedClass: KClass<C>) 
 
     @ContextDsl
     fun <K : Any?> KProperty1<C, K?>.shouldBeNotNull() {
-        val validator: ValidationStage<C, K?> = { f, value ->
+        val validator: ValidationStage<C, K?> = { value ->
             if (value == null) {
-                invalid("Field ${f.name} should be not null")
+                invalid("Field ${this.name} should be not null")
             } else {
                 success()
             }
         }
+        @Suppress("UNCHECKED_CAST")
         val meta = ValidatorFieldMeta(this, validator as ValidationStage<C, Any?>)
         fieldValidators.add(meta)
     }
 
     @ContextDsl
     fun <K : Any?> KProperty1<C, K?>.shouldBeNull() {
-        val validator: ValidationStage<C, K?> = { f, value ->
+        val validator: ValidationStage<C, K?> = { value ->
             if (value != null) {
-                invalid("Field ${f.name} should be not null")
+                invalid("Field ${this.name} should be not null")
             } else {
                 success()
             }
         }
+        @Suppress("UNCHECKED_CAST")
         val meta = ValidatorFieldMeta(this, validator as ValidationStage<C, Any?>)
         fieldValidators.add(meta)
     }
 
     @ContextDsl
     infix fun <K : Any> KProperty1<C, K>.shouldBeValidWith(validator: Validator<K>) {
+        @Suppress("UNCHECKED_CAST")
         val meta = ValidatorChildMeta(this, validator as Validator<Any>, false)
         childrenValidators.add(meta)
     }
@@ -70,6 +74,7 @@ class ValidatorBuilder<C : Any> constructor(private val mappedClass: KClass<C>) 
 
     @ContextDsl
     fun <K : Any> KProperty1<C, K?>.shouldBeValidWith(nullable: Boolean, validator: Validator<K>) {
+        @Suppress("UNCHECKED_CAST")
         val meta = ValidatorChildMeta(this, validator as Validator<Any>, nullable)
         childrenValidators.add(meta)
     }
@@ -87,10 +92,11 @@ class ValidatorBuilder<C : Any> constructor(private val mappedClass: KClass<C>) 
 
 
     @ContextDsl
-    fun success() = ValidationResult.SUCCESS
+    fun <T> KProperty1<C, T?>.success() = ValidStatus
 
+    @Suppress("UNCHECKED_CAST")
     @ContextDsl
-    fun invalid(msg: String) = ValidationResult(message = msg)
+    fun <T> KProperty1<C, T?>.invalid(msg: String) = InvalidFieldStatus(this as KProperty1<Any, Any?>, msg)
 
     fun build(): Validator<C> = Validator(mappedClass, fieldValidators, childrenValidators)
 
