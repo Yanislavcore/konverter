@@ -1,5 +1,8 @@
-package org.yanislavcore.konverter
+package org.yanislavcore.konverter.mapping
 
+import org.yanislavcore.konverter.ContextDsl
+import org.yanislavcore.konverter.ConverterException
+import org.yanislavcore.konverter.ConverterValidationException
 import kotlin.reflect.KClass
 import kotlin.reflect.KProperty1
 import kotlin.reflect.full.primaryConstructor
@@ -43,7 +46,8 @@ class MappingBuilder<RESULT : Any> constructor(private val mappedClass: KClass<R
      * @param value - value to supply
      * @return constant builder that just returns [value].
      */
-    fun <T> just(value: T): ConvertingStage<T> = JustConvertingStage(value)
+    fun <T> just(value: T): ConvertingStage<T> =
+        JustConvertingStage(value)
 
     /**
      * Creates lazy builder.
@@ -75,7 +79,10 @@ class MappingBuilder<RESULT : Any> constructor(private val mappedClass: KClass<R
                         "Validation failed (failFast=true). Cause: '${ex.message}'"
                     )
                 } else {
-                    throw ConverterException(listOf(ex), "Internal error during conversion (failFast=true)")
+                    throw ConverterException(
+                        listOf(ex),
+                        "Internal error during conversion (failFast=true)"
+                    )
                 }
             }
             k.name to result
@@ -86,11 +93,17 @@ class MappingBuilder<RESULT : Any> constructor(private val mappedClass: KClass<R
                 .filter { (_, v) -> v.isFailed() }
                 .map { (_, v) -> v.fail() }
             if (fails.any { it !is ConverterValidationException }) {
-                throw ConverterException(fails, "Internal error during conversion (failFast=false)")
+                throw ConverterException(
+                    fails,
+                    "Internal error during conversion (failFast=false)"
+                )
             } else {
                 @Suppress("UNCHECKED_CAST")
                 val invalidParamFails = fails as List<ConverterValidationException>
-                throw ConverterValidationException(invalidParamFails, "Validation failed (failFast=true)")
+                throw ConverterValidationException(
+                    invalidParamFails,
+                    "Validation failed (failFast=true)"
+                )
             }
         }
 
@@ -111,6 +124,9 @@ class MappingBuilder<RESULT : Any> constructor(private val mappedClass: KClass<R
          */
         @ContextDsl
         fun invalid(msg: String, cause: Exception? = null): Nothing =
-            throw ConverterValidationException(message = msg, cause = cause)
+            throw ConverterValidationException(
+                message = msg,
+                cause = cause
+            )
     }
 }

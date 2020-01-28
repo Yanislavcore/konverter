@@ -1,4 +1,4 @@
-package org.yanislavcore.konverter
+package org.yanislavcore.konverter.mapping
 
 
 /**

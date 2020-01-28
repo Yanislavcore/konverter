@@ -1,4 +1,4 @@
-package org.yanislavcore.konverter
+package org.yanislavcore.konverter.mapping
 
 /**
  * Result of calculation can be either exceptional or successful. Never can be both.
@@ -72,7 +72,8 @@ class ConvertingResult<R> private constructor(
         /**
          * Creates exceptional result
          */
-        fun <R> fail(exception: Throwable) = ConvertingResult<R>(exception, null)
+        fun <R> fail(exception: Throwable) =
+            ConvertingResult<R>(exception, null)
     }
 
 

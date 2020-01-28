@@ -63,8 +63,9 @@ Maven
 ## Usage
 
 ```kotlin
+import org.yanislavcore.konverter.ConverterValidationException
 import org.yanislavcore.konverter.Konverter
-import org.yanislavcore.konverter.ValidationException
+import org.yanislavcore.konverter.mapping.MappingBuilder.DslHelper.invalid
 import java.math.BigDecimal
 import java.util.*
 
@@ -113,10 +114,10 @@ fun main() {
     assert(BigDecimal("27.123") == result.bar3)
 
     val invalidInput = input.minus("bar1")
-    val failedResult: ValidationException? = try {
+    val failedResult: ConverterValidationException? = try {
         build(invalidInput)
         null
-    } catch (e: ValidationException) {
+    } catch (e: ConverterValidationException) {
         e
     }
 

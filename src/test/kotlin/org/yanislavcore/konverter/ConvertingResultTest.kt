@@ -5,6 +5,7 @@ import io.kotlintest.specs.StringSpec
 import org.amshove.kluent.shouldBe
 import org.amshove.kluent.shouldBeInstanceOf
 import org.amshove.kluent.shouldEqual
+import org.yanislavcore.konverter.mapping.ConvertingResult
 
 class ConvertingResultTest : StringSpec({
     "If exception set should be failed" {

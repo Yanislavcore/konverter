@@ -1,5 +1,8 @@
 package org.yanislavcore.konverter
 
+import org.yanislavcore.konverter.mapping.ConvertingStage
+import org.yanislavcore.konverter.mapping.LazyConvertingStage
+import org.yanislavcore.konverter.mapping.MappingBuilder
 import org.yanislavcore.konverter.validation.Validator
 import org.yanislavcore.konverter.validation.ValidatorBuilder
 import kotlin.reflect.KClass

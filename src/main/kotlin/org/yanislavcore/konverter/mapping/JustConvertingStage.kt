@@ -1,4 +1,4 @@
-package org.yanislavcore.konverter
+package org.yanislavcore.konverter.mapping
 
 class JustConvertingStage<R>(value: R) : ConvertingStage<R> {
     private val result = ConvertingResult.success(value)
