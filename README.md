@@ -62,10 +62,13 @@ Maven
 
 ## Usage
 
+To run this example don't forget to enable asserting (`-ea`).
+
 ```kotlin
 import org.yanislavcore.konverter.ConverterValidationException
 import org.yanislavcore.konverter.Konverter
 import org.yanislavcore.konverter.mapping.MappingBuilder.DslHelper.invalid
+import org.yanislavcore.konverter.validation.match
 import java.math.BigDecimal
 import java.util.*
 
@@ -102,7 +105,36 @@ fun build(input: Map<String, String>): Foo = Konverter.convert {
     Foo::bar5 withNullable just(null as BarData?)
 }
 
+val validator = Konverter.validator<Foo> {
+    //Common API
+    Foo::bar1 should {
+        if (it.startsWith("123")) {
+            success()
+        } else {
+            invalid("Should start with 123!")
+        }
+    }
+
+    //Simple API
+    Foo::bar2 should match { it < 300 }
+
+    Foo::bar3 should match { it < BigDecimal(1000) }
+
+    //Nested validator
+    Foo::bar4 shouldBeValidWith Konverter.validator {
+        BarData::first should match { it.startsWith("abc") }
+    }
+    //OR
+    Foo::bar4 shouldBeValidWith {
+        BarData::first should match { it.startsWith("abc") }
+    }
+
+    Foo::bar5.shouldBeNull()
+}
+
 fun main() {
+
+    //    ######## Builder #######
     val input = mapOf(
         "bar1" to "42",
         "bar3" to "27.123",
@@ -123,6 +155,40 @@ fun main() {
 
     assert(failedResult != null)
     assert(failedResult!!.reasons!!.first().message == "'bar1' should be not null")
+
+    //    ######## Validation #######
+
+    val foo = Foo(
+        bar1 = "12345",
+        bar2 = 123,
+        bar3 = BigDecimal("32.12"),
+        bar4 = BarData("abc", UUID.randomUUID()),
+        bar5 = null
+    )
+
+    val invalidFoo = Foo(
+        bar1 = "54321",
+        bar2 = 321,
+        bar3 = BigDecimal("1000000032.12"),
+        bar4 = BarData("a".repeat(100), UUID.randomUUID()),
+        bar5 = BarData("abc", UUID.randomUUID())
+    )
+
+    val validationResult = validator.validate(foo)
+    assert(validationResult.successful)
+    assert(validationResult.causedBy == null)
+    println(validationResult)
+
+    val failedValidationResult  = validator.validate(invalidFoo)
+    assert(!failedValidationResult.successful)
+    assert(failedValidationResult.causedBy != null && failedValidationResult.causedBy!!.size == 6)
+    println(failedValidationResult)
+
+    // Failfast
+    val failfastValidationResult  = validator.validate(invalidFoo, failfast = true)
+    assert(!failfastValidationResult.successful)
+    assert(failfastValidationResult.causedBy != null && failfastValidationResult.causedBy!!.size == 1)
+    println(failfastValidationResult)
 }
 ``` 
 
